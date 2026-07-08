@@ -1,0 +1,40 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Node
+node_modules/
+npm-debug.log
+dist/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Env / secrets — NEVER commit real secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+kubeconfig
+kubeconfig.yaml
+
+# Kind
+kind-logs/
+
+# Helm
+*.tgz
+charts/*/charts/
+
+# Terraform (future-proofing if you add IaC later)
+.terraform/
+*.tfstate
+*.tfstate.backup
