@@ -169,3 +169,20 @@ demo-selfheal:
 restore-postgres:
 	kubectl scale statefulset postgres -n platform --replicas=1
 	kubectl wait --for=condition=Ready pod postgres-0 -n platform --timeout=60s
+
+# ============================
+# (Chapter 11)
+# ============================
+
+
+.PHONY: check-qos check-pdb drain-test
+
+check-qos:
+	kubectl get pods -n platform -o custom-columns=NAME:.metadata.name,QOS:.status.qosClass
+
+check-pdb:
+	kubectl get pdb -n platform
+
+drain-test:
+	@echo "Usage: kubectl drain <node-name> --ignore-daemonsets --delete-emptydir-data --timeout=120s"
+	@echo "Then: kubectl uncordon <node-name>"
