@@ -210,3 +210,29 @@ load-test:
 
 stop-load-test:
 	kubectl delete pod load-generator -n platform --ignore-not-found
+
+# ============================
+# (Chapter 13)
+# ============================
+
+.PHONY: apply-netpol test-netpol-allowed test-netpol-blocked
+
+apply-netpol:
+	kubectl apply -f deploy/k8s/base/network-policies/allow-dns.yaml
+	kubectl apply -f deploy/k8s/base/network-policies/auth-service-netpol.yaml
+	kubectl apply -f deploy/k8s/base/network-policies/backend-netpol.yaml
+	kubectl apply -f deploy/k8s/base/network-policies/postgres-netpol.yaml
+	kubectl apply -f deploy/k8s/base/network-policies/redis-netpol.yaml
+	kubectl apply -f deploy/k8s/base/network-policies/rabbitmq-netpol.yaml
+	kubectl apply -f deploy/k8s/base/network-policies/notification-service-netpol.yaml
+	kubectl apply -f deploy/k8s/base/network-policies/frontend-netpol.yaml
+	kubectl apply -f deploy/k8s/base/network-policies/default-deny-all.yaml
+
+test-netpol-allowed:
+	curl -X POST http://platform.local/api/login -H "Content-Type: application/json" -d '{"username":"netpol-verify"}'
+
+test-netpol-blocked:
+	kubectl run netpol-attacker -n platform --image=busybox:1.36 --restart=Never --labels="app=frontend" -- sleep 60
+	@sleep 3
+	kubectl exec -n platform netpol-attacker -- timeout 3 nc -zv postgres 5432 || echo "Correctly blocked."
+	kubectl delete pod netpol-attacker -n platform --ignore-not-found
