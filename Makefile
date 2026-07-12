@@ -186,3 +186,27 @@ check-pdb:
 drain-test:
 	@echo "Usage: kubectl drain <node-name> --ignore-daemonsets --delete-emptydir-data --timeout=120s"
 	@echo "Then: kubectl uncordon <node-name>"
+
+# ============================
+# (Chapter 12)
+# ============================
+
+
+.PHONY: install-metrics-server check-hpa load-test stop-load-test
+
+install-metrics-server:
+	kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+	kubectl patch deployment metrics-server -n kube-system --type='json' \
+		-p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--kubelet-insecure-tls"}]'
+	kubectl rollout status deployment/metrics-server -n kube-system
+
+check-hpa:
+	kubectl get hpa -n platform
+	kubectl top pods -n platform
+
+load-test:
+	kubectl run load-generator -n platform --image=busybox:1.36 --restart=Never -- \
+		sh -c "while true; do wget -q -O- --post-data='{\"username\":\"load-test\"}' --header='Content-Type: application/json' http://backend:4000/login; done"
+
+stop-load-test:
+	kubectl delete pod load-generator -n platform --ignore-not-found
