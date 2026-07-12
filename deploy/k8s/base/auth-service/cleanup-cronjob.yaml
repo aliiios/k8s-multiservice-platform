@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: users-cleanup
+  namespace: platform
+spec:
+  schedule: "0 3 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  startingDeadlineSeconds: 300
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 60
+      ttlSecondsAfterFinished: 3600
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: cleanup
+              image: platform/auth-service:local
+              imagePullPolicy: IfNotPresent
+              command: ["node", "src/cleanup.js"]
+              envFrom:
+                - configMapRef:
+                    name: auth-service-config
+              env:
+                - name: DB_USER
+                  valueFrom:
+                    secretKeyRef: { name: postgres-credentials, key: username }
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef: { name: postgres-credentials, key: password }
+                - name: RETENTION_DAYS
+                  value: "30"
