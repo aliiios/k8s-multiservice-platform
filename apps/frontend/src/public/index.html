@@ -1,0 +1,32 @@
+apps/frontend/src/public/index.html<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>K8s Multi-Service Platform</title>
+</head>
+<body>
+  <h1>K8s Multi-Service Platform</h1>
+  <input id="username" placeholder="username" />
+  <button onclick="login()">Login</button>
+  <pre id="result"></pre>
+
+  <script>
+    // BACKEND_URL is deliberately left relative/configurable — in
+    // Kubernetes with Ingress (Step 7), this will hit the Ingress path,
+    // not a hardcoded backend hostname. For now, in Compose, we call the
+    // backend directly on its published port.
+    const BACKEND_URL = window.BACKEND_URL || '/api';
+
+    async function login() {
+      const username = document.getElementById('username').value;
+      const res = await fetch(`${BACKEND_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username }),
+      });
+      const data = await res.json();
+      document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
