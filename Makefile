@@ -236,3 +236,20 @@ test-netpol-blocked:
 	@sleep 3
 	kubectl exec -n platform netpol-attacker -- timeout 3 nc -zv postgres 5432 || echo "Correctly blocked."
 	kubectl delete pod netpol-attacker -n platform --ignore-not-found
+
+# ============================
+# (Chapter 14)
+# ============================
+
+
+.PHONY: deploy-fluentbit check-fluentbit
+
+deploy-fluentbit:
+	kubectl apply -f deploy/k8s/base/fluent-bit/rbac.yaml
+	kubectl apply -f deploy/k8s/base/fluent-bit/configmap.yaml
+	kubectl apply -f deploy/k8s/base/fluent-bit/daemonset.yaml
+	kubectl rollout status daemonset/fluent-bit -n platform
+
+check-fluentbit:
+	kubectl get pods -n platform -l app=fluent-bit -o wide
+	kubectl get daemonset fluent-bit -n platform
