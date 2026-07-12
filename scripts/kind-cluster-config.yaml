@@ -1,0 +1,31 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+
+name: platform
+
+# Disable Kind's default CNI so we can install Calico ourselves.
+networking:
+  disableDefaultCNI: true
+  podSubnet: "192.168.0.0/16"
+  serviceSubnet: "10.96.0.0/12"
+
+nodes:
+  - role: control-plane
+    kubeadmConfigPatches:
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "ingress-ready=true"
+    extraPortMappings:
+      # Map host ports to the control-plane node's container ports so
+      # the NGINX Ingress Controller (Step 7) is reachable from the VM's
+      # browser without any extra port-forwarding.
+      - containerPort: 80
+        hostPort: 80
+        protocol: TCP
+      - containerPort: 443
+        hostPort: 443
+        protocol: TCP
+  - role: worker
+  - role: worker
