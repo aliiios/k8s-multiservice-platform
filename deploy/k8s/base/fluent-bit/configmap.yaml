@@ -28,9 +28,13 @@ data:
         K8S-Logging.Parser  On
 
     [OUTPUT]
-        Name    stdout
-        Match   *
-        Format  json_lines
+        Name        loki
+        Match       *
+        Host        loki.observability.svc.cluster.local
+        Port        3100
+        Labels      job=fluent-bit
+        Label_keys  $kubernetes['namespace_name'],$kubernetes['pod_name'],$kubernetes['container_name']
+        Line_Format json
 
   parsers.conf: |
     [PARSER]

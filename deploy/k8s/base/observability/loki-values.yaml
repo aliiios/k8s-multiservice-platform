@@ -1,0 +1,35 @@
+loki:
+  image:
+    tag: 2.9.6
+  persistence:
+    enabled: true
+    storageClassName: standard
+    size: 2Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 300m
+      memory: 512Mi
+  config:
+    limits_config:
+      retention_period: 24h
+    common:
+      ring:
+        kvstore:
+          store: inmemory
+    schema_config:
+      configs:
+        - from: 2020-10-24
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v11
+          index:
+            prefix: index_
+            period: 24h
+promtail:
+  enabled: false
+
+grafana:
+  enabled: false
