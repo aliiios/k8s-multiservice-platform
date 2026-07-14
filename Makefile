@@ -253,3 +253,32 @@ deploy-fluentbit:
 check-fluentbit:
 	kubectl get pods -n platform -l app=fluent-bit -o wide
 	kubectl get daemonset fluent-bit -n platform
+
+# ============================
+# (Chapter 15)
+# ============================
+
+
+.PHONY: install-monitoring grafana-ui check-monitoring
+
+install-monitoring:
+	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+	helm repo add grafana https://grafana.github.io/helm-charts
+	helm repo update
+	kubectl create namespace observability --dry-run=client -o yaml | kubectl apply -f -
+	helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+		--namespace observability \
+		--values deploy/k8s/base/observability/prometheus-values.yaml \
+		--timeout 10m
+	helm install loki grafana/loki-stack \
+		--namespace observability \
+		--values deploy/k8s/base/observability/loki-values.yaml \
+		--timeout 5m
+
+grafana-ui:
+	kubectl port-forward -n observability svc/kube-prometheus-stack-grafana 3001:80
+
+check-monitoring:
+	kubectl get pods -n observability
+	kubectl top nodes
+	kubectl top pods -n observability
