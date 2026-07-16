@@ -1,0 +1,7 @@
+Platform chart deployed.
+
+Check status:
+  kubectl get pods -n {{ .Values.namespace }}
+
+Access the app:
+  http://{{ .Values.ingress.host }}

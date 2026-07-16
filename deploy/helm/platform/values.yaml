@@ -1,0 +1,68 @@
+namespace: platform
+
+services:
+  frontend:
+    image: platform/frontend
+    tag: local
+    replicas: 2
+    port: 3000
+    resources:
+      requests: { cpu: 50m, memory: 64Mi }
+      limits: { cpu: 200m, memory: 128Mi }
+    probePath:
+      liveness: /healthz
+      readiness: /readyz
+
+  auth-service:
+    image: platform/auth-service
+    tag: local
+    replicas: 2
+    port: 4001
+    resources:
+      requests: { cpu: 100m, memory: 128Mi }
+      limits: { cpu: 500m, memory: 256Mi }
+    probePath:
+      liveness: /healthz
+      readiness: /readyz
+
+  backend:
+    image: platform/backend
+    tag: local
+    replicas: 2
+    port: 4000
+    resources:
+      requests: { cpu: 150m, memory: 128Mi }
+      limits: { cpu: 750m, memory: 256Mi }
+    probePath:
+      liveness: /healthz
+      readiness: /readyz
+
+  notification-service:
+    image: platform/notification-service
+    tag: local
+    replicas: 2
+    port: 4002
+    resources:
+      requests: { cpu: 100m, memory: 128Mi }
+      limits: { cpu: 500m, memory: 256Mi }
+    probePath:
+      liveness: /healthz
+      readiness: /readyz
+
+redis:
+  image: redis
+  tag: "7-alpine"
+  resources:
+    requests: { cpu: 100m, memory: 128Mi }
+    limits: { cpu: 500m, memory: 384Mi }
+
+rabbitmq:
+  image: rabbitmq
+  tag: "3.13-management-alpine"
+  resources:
+    requests: { cpu: 250m, memory: 256Mi }
+    limits: { cpu: 1000m, memory: 512Mi }
+
+ingress:
+  enabled: true
+  host: platform.local

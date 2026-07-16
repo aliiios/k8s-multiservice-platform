@@ -1,0 +1,22 @@
+{{- range $name, $svc := .Values.services }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}-config
+  namespace: {{ $.Values.namespace }}
+data:
+  PORT: "{{ $svc.port }}"
+  {{- if eq $name "backend" }}
+  AUTH_SERVICE_URL: "http://auth-service:4001"
+  REDIS_URL: "redis://redis:6379"
+  RABBITMQ_URL: "amqp://rabbitmq:5672"
+  {{- end }}
+  {{- if eq $name "auth-service" }}
+  DB_HOST: "postgres"
+  DB_PORT: "5432"
+  DB_NAME: "platform_db"
+  {{- end }}
+  {{- if eq $name "notification-service" }}
+  RABBITMQ_URL: "amqp://rabbitmq:5672"
+  {{- end }}
+{{- end }}
