@@ -282,3 +282,26 @@ check-monitoring:
 	kubectl get pods -n observability
 	kubectl top nodes
 	kubectl top pods -n observability
+
+# ============================
+# (Chapter 16)
+# ============================
+
+
+.PHONY: helm-lint helm-template helm-install helm-upgrade helm-rollback helm-status
+
+helm-lint:
+	cd deploy/helm/platform && helm lint .
+
+helm-template:
+	cd deploy/helm/platform && helm template platform . --values values.yaml
+
+helm-install:
+	cd deploy/helm/platform && helm install platform . --values values.yaml --namespace platform
+
+helm-upgrade:
+	cd deploy/helm/platform && helm upgrade platform . --values values.yaml --namespace platform
+
+helm-status:
+	helm status platform -n platform
+	helm history platform -n platform
