@@ -4,17 +4,17 @@ loki:
   persistence:
     enabled: true
     storageClassName: standard
-    size: 2Gi
+    size: 1Gi
   resources:
     requests:
-      cpu: 100m
-      memory: 256Mi
+      cpu: 50m
+      memory: 128Mi
     limits:
-      cpu: 300m
-      memory: 512Mi
+      cpu: 200m
+      memory: 256Mi
   config:
     limits_config:
-      retention_period: 24h
+      retention_period: 12h
     common:
       ring:
         kvstore:
@@ -33,3 +33,12 @@ promtail:
 
 grafana:
   enabled: false
+  sidecar:
+    datasources:
+      enabled: false
+
+loki-stack:
+  grafana:
+    sidecar:
+      datasources:
+        enabled: false

@@ -103,7 +103,7 @@ async function connectRedisWithRetry(retries = 10, delayMs = 3000) {
   throw new Error('Could not connect to Redis after retries');
 }
 
-async function connectRabbitWithRetry(retries = 10, delayMs = 3000) {
+async function connectRabbitWithRetry(retries = 30, delayMs = 5000) {
   for (let i = 1; i <= retries; i++) {
     try {
       const conn = await amqp.connect(RABBITMQ_URL);
@@ -112,13 +112,14 @@ async function connectRabbitWithRetry(retries = 10, delayMs = 3000) {
 
       // If the channel/connection drops later (RabbitMQ restart, network
       // blip, probe-induced instability), don't just leave amqpChannel
-      // pointing at a dead object — null it out and reconnect.
+      // pointing at a dead object — null it out and reconnect FOREVER,
+      // not just for a fixed budget. A RabbitMQ restart mid-lifetime can
+      // take just as long as the initial boot, and giving up permanently
+      // here would leave backend stuck "not ready" until manually restarted.
       conn.on('close', () => {
         console.warn('RabbitMQ connection closed, reconnecting...');
         amqpChannel = null;
-        connectRabbitWithRetry().catch((err) =>
-          console.error('Reconnect failed permanently:', err.message)
-        );
+        reconnectForever();
       });
 
       console.log('Connected to RabbitMQ');
@@ -129,6 +130,17 @@ async function connectRabbitWithRetry(retries = 10, delayMs = 3000) {
     }
   }
   throw new Error('Could not connect to RabbitMQ after retries');
+}
+
+async function reconnectForever() {
+  while (!amqpChannel) {
+    try {
+      await connectRabbitWithRetry(1, 5000);
+    } catch (err) {
+      console.warn('Reconnect attempt failed, will keep trying:', err.message);
+      await new Promise((r) => setTimeout(r, 5000));
+    }
+  }
 }
 
 (async () => {

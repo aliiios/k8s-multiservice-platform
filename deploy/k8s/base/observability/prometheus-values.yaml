@@ -1,13 +1,13 @@
 prometheus:
   prometheusSpec:
-    retention: 6h
+    retention: 1h
     resources:
       requests:
-        cpu: 200m
-        memory: 512Mi
+        cpu: 50m
+        memory: 256Mi
       limits:
-        cpu: 500m
-        memory: 768Mi
+        cpu: 200m
+        memory: 384Mi
     storageSpec:
       volumeClaimTemplate:
         spec:
@@ -15,21 +15,21 @@ prometheus:
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: 2Gi
+              storage: 1Gi
 
 grafana:
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
+      cpu: 30m
+      memory: 96Mi
     limits:
-      cpu: 200m
-      memory: 256Mi
+      cpu: 150m
+      memory: 192Mi
   adminPassword: "changeme-admin"
   persistence:
     enabled: true
     storageClassName: standard
-    size: 1Gi
+    size: 512Mi
 
 alertmanager:
   enabled: false
@@ -43,8 +43,8 @@ kubeStateMetrics:
 prometheusOperator:
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
+      cpu: 30m
+      memory: 96Mi
     limits:
-      cpu: 200m
-      memory: 256Mi
+      cpu: 150m
+      memory: 192Mi
