@@ -28,7 +28,7 @@ services:
   backend:
     image: platform/backend
     tag: local
-    replicas: 2
+    replicas: 3
     port: 4000
     resources:
       requests: { cpu: 150m, memory: 128Mi }
