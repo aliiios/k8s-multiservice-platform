@@ -22,23 +22,23 @@ spec:
             - containerPort: 15672
               name: management
           startupProbe:
-            exec:
-              command: ["rabbitmq-diagnostics", "-q", "ping"]
+            tcpSocket:
+              port: 5672
             periodSeconds: 10
-            timeoutSeconds: 15
+            timeoutSeconds: 5
             failureThreshold: 30
           livenessProbe:
-            exec:
-              command: ["rabbitmq-diagnostics", "-q", "ping"]
+            tcpSocket:
+              port: 5672
             periodSeconds: 20
-            timeoutSeconds: 15
-            failureThreshold: 3
+            timeoutSeconds: 5
+            failureThreshold: 5
           readinessProbe:
-            exec:
-              command: ["rabbitmq-diagnostics", "-q", "ping"]
+            tcpSocket:
+              port: 5672
             periodSeconds: 15
-            timeoutSeconds: 15
-            failureThreshold: 3
+            timeoutSeconds: 5
+            failureThreshold: 5
           resources:
             requests:
               cpu: "350m"
