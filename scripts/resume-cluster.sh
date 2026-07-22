@@ -27,6 +27,3 @@ kubectl get pods -n kube-system -l k8s-app=kube-dns -o wide
 
 echo "== Calico status =="
 kubectl get pods -n calico-system -o wide
-
-echo "== fluent-bit status =="
-kubectl get pods -n platform -l app=fluent-bit -o wide
