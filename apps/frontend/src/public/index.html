@@ -1,32 +1,214 @@
-apps/frontend/src/public/index.html<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>K8s Multi-Service Platform</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Platform Console · Kubernetes Multi-Service Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --canvas:#f7f7f5; --panel:#fff; --ink:#111; --muted:#6b6b6b; --faint:#9a9a95;
+    --line:#e6e6e2; --blue:#3b82c4; --blue-deep:#2b6aa3; --red:#e5484d;
+    --ok:#2f9e44; --amber:#e8850c; --slate:#c9d4da;
+    --mono:'JetBrains Mono',monospace; --display:'Space Grotesk',sans-serif; --body:'Inter',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--body);background:var(--canvas);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .frame{border:1px solid var(--line);background:var(--panel);border-radius:20px;margin:16px;overflow:hidden}
+  nav{display:flex;align-items:center;justify-content:space-between;padding:18px 30px;border-bottom:1px solid var(--line)}
+  .brand{font-family:var(--mono);font-weight:500;font-size:15px}
+  .brand span{color:var(--blue)}
+  .cluster-state{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;border:1px solid var(--line);padding:7px 13px;border-radius:999px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--faint)}
+  .dot.up{background:var(--ok);animation:pulse 2s infinite}
+  .dot.down{background:var(--red)}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(47,158,68,.45)}70%{box-shadow:0 0 0 6px rgba(47,158,68,0)}100%{box-shadow:0 0 0 0 rgba(47,158,68,0)}}
+  .head{padding:34px 30px 26px;border-bottom:1px solid var(--line)}
+  .eyebrow{font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .eyebrow .star{color:var(--red)}
+  h1{font-family:var(--display);font-weight:600;font-size:clamp(30px,4vw,46px);line-height:1.02;letter-spacing:-.03em;max-width:760px}
+  h1 .thin{color:var(--muted);font-weight:500}
+  .sub{color:var(--muted);font-size:15px;margin-top:14px;max-width:620px}
+  .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:0}
+  .col-l{padding:26px 30px;border-right:1px solid var(--line)}
+  .col-r{padding:26px 30px;background:#fafaf8}
+  .panel-title{font-family:var(--mono);font-size:12px;color:var(--faint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+  .action{display:flex;gap:10px;margin-bottom:22px}
+  .action input{flex:1;font-family:var(--body);font-size:15px;padding:13px 15px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}
+  .action input:focus{outline:none;border-color:var(--blue)}
+  .btn{font-family:var(--display);font-weight:600;font-size:14px;padding:13px 20px;border-radius:11px;border:none;cursor:pointer;background:var(--ink);color:#fff;display:inline-flex;align-items:center;gap:8px;transition:transform .12s,background .2s;white-space:nowrap}
+  .btn:hover{background:#000;transform:translateY(-1px)}
+  .btn:active{transform:translateY(0)}
+  .btn[disabled]{opacity:.55;cursor:not-allowed;transform:none}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .btn.ghost:hover{background:var(--canvas);border-color:var(--ink)}
+  .trace{display:flex;flex-direction:column;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .hop{display:flex;align-items:center;gap:13px;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--panel);transition:background .3s}
+  .hop:last-child{border-bottom:none}
+  .hop.done{background:#f3faf5}
+  .hop .idx{font-family:var(--mono);font-size:11px;color:var(--faint);width:18px}
+  .hop .body{flex:1;min-width:0}
+  .hop .name{font-family:var(--mono);font-size:13px;font-weight:500}
+  .hop .desc{font-size:12px;color:var(--muted);margin-top:1px}
+  .hop .ns{font-family:var(--mono);font-size:10px;color:var(--blue-deep);background:#eaf2fb;padding:2px 6px;border-radius:5px}
+  .hop .check{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);flex-shrink:0;position:relative;transition:all .3s}
+  .hop.done .check{border-color:var(--ok);background:var(--ok)}
+  .hop.done .check::after{content:'';position:absolute;left:5px;top:2.5px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .hop.active .check{border-color:var(--blue);border-top-color:transparent;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .readout{margin-top:18px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .readout-head{display:flex;justify-content:space-between;align-items:center;padding:11px 15px;background:var(--panel);border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
+  .readout-body{padding:15px;font-family:var(--mono);font-size:12.5px;background:#0e0e0e;color:#d4d4d4;line-height:1.7;min-height:74px;word-break:break-all}
+  .readout-body .k{color:#7a8}
+  .readout-body .v-fresh{color:#5aa9e6}
+  .readout-body .v-cached{color:#e5847d}
+  .readout-body .muted{color:#666}
+  .insight{display:flex;gap:12px;margin-top:14px}
+  .stat-card{flex:1;border:1px solid var(--line);border-radius:11px;padding:13px 15px;background:var(--panel)}
+  .stat-card .n{font-family:var(--display);font-weight:600;font-size:24px;letter-spacing:-.02em}
+  .stat-card .l{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .stat-card .n.blue{color:var(--blue)}
+  .stat-card .n.red{color:var(--red)}
+  .svc{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .svc:last-child{border-bottom:none}
+  .svc .sdot{width:9px;height:9px;border-radius:50%;background:var(--faint);flex-shrink:0}
+  .svc .sdot.up{background:var(--ok)}
+  .svc .sdot.down{background:var(--red)}
+  .svc .sdot.checking{background:var(--amber);animation:blink 1s infinite}
+  @keyframes blink{50%{opacity:.3}}
+  .svc .sname{font-family:var(--mono);font-size:13px;font-weight:500;flex:1}
+  .svc .sns{font-family:var(--mono);font-size:10px;color:var(--blue-deep);background:#eaf2fb;padding:2px 6px;border-radius:5px}
+  .svc .skind{font-family:var(--mono);font-size:10px;color:var(--faint)}
+  .legend{margin-top:18px;font-size:12px;color:var(--muted);line-height:1.6}
+  .legend code{font-family:var(--mono);font-size:11px;background:var(--canvas);padding:1px 5px;border-radius:4px}
+  .foot{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}
+  .foot .fs{padding:20px 24px;border-right:1px solid var(--line)}
+  .foot .fs:last-child{border-right:none}
+  .foot .fn{font-family:var(--display);font-weight:600;font-size:26px;letter-spacing:-.02em}
+  .foot .fl{font-size:12px;color:var(--muted);margin-top:2px}
+  @media (max-width:880px){.grid{grid-template-columns:1fr}.col-l{border-right:none;border-bottom:1px solid var(--line)}.foot{grid-template-columns:1fr 1fr}.foot .fs:nth-child(2){border-right:none}}
+  @media (max-width:520px){.frame{margin:8px}.action{flex-direction:column}.foot{grid-template-columns:1fr}.foot .fs{border-right:none}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  :focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+</style>
 </head>
 <body>
-  <h1>K8s Multi-Service Platform</h1>
-  <input id="username" placeholder="username" />
-  <button onclick="login()">Login</button>
-  <pre id="result"></pre>
-
-  <script>
-    // BACKEND_URL is deliberately left relative/configurable — in
-    // Kubernetes with Ingress (Step 7), this will hit the Ingress path,
-    // not a hardcoded backend hostname. For now, in Compose, we call the
-    // backend directly on its published port.
-    const BACKEND_URL = window.BACKEND_URL || '/api';
-
-    async function login() {
-      const username = document.getElementById('username').value;
-      const res = await fetch(`${BACKEND_URL}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username }),
-      });
-      const data = await res.json();
-      document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+<div class="frame">
+  <nav>
+    <div class="brand">// platform<span>.k8s</span> · console</div>
+    <div class="cluster-state"><span class="dot" id="clusterDot"></span> <span id="clusterLabel">checking cluster…</span></div>
+  </nav>
+  <div class="head">
+    <div class="eyebrow"><span class="star">✦</span> Multi-service Kubernetes platform · live demo</div>
+    <h1>Send a request and <span class="thin">watch it travel the cluster</span></h1>
+    <p class="sub">This console drives the real platform. Sign in to trace one request across every service, prove the Redis cache with a second call, and check each service's health endpoint — all live against the running cluster.</p>
+  </div>
+  <div class="grid">
+    <div class="col-l">
+      <div class="panel-title"><span>Request trace</span><span id="traceState">idle</span></div>
+      <div class="action">
+        <input id="username" type="text" placeholder="username" value="demo-user" aria-label="username" />
+        <button class="btn" id="sendBtn">Send request →</button>
+        <button class="btn ghost" id="againBtn" title="Send the same user again to hit the Redis cache">Repeat (prove cache)</button>
+      </div>
+      <div class="trace" id="trace">
+        <div class="hop" data-h="0"><span class="idx">01</span><span class="body"><div class="name">NGINX Ingress</div><div class="desc">routes <code>/api/login</code> by path</div></span><span class="ns">ingress-nginx</span><span class="check"></span></div>
+        <div class="hop" data-h="1"><span class="idx">02</span><span class="body"><div class="name">backend</div><div class="desc">core API · checks Redis first</div></span><span class="ns">platform</span><span class="check"></span></div>
+        <div class="hop" data-h="2"><span class="idx">03</span><span class="body"><div class="name">auth-service &rarr; Postgres</div><div class="desc">issues token on cache miss</div></span><span class="ns">platform</span><span class="check"></span></div>
+        <div class="hop" data-h="3"><span class="idx">04</span><span class="body"><div class="name">Redis</div><div class="desc">caches token for 300s</div></span><span class="ns">platform</span><span class="check"></span></div>
+        <div class="hop" data-h="4"><span class="idx">05</span><span class="body"><div class="name">RabbitMQ &rarr; notification-service</div><div class="desc">publishes event, consumed async</div></span><span class="ns">platform</span><span class="check"></span></div>
+      </div>
+      <div class="readout">
+        <div class="readout-head"><span>response · POST /api/login</span><span id="latency"></span></div>
+        <div class="readout-body" id="readout"><span class="muted">// run a request to see the token and cache state</span></div>
+      </div>
+      <div class="insight">
+        <div class="stat-card"><div class="n" id="reqCount">0</div><div class="l">requests sent</div></div>
+        <div class="stat-card"><div class="n blue" id="freshCount">0</div><div class="l">cache misses (fresh)</div></div>
+        <div class="stat-card"><div class="n red" id="cacheCount">0</div><div class="l">cache hits</div></div>
+      </div>
+    </div>
+    <div class="col-r">
+      <div class="panel-title"><span>Service health</span><button class="btn ghost" id="healthBtn" style="padding:6px 12px;font-size:12px">Re-check</button></div>
+      <div id="healthList">
+        <div class="svc"><span class="sdot" data-svc="frontend"></span><span class="sname">frontend</span><span class="sns">platform</span><span class="skind">Deploy</span></div>
+        <div class="svc"><span class="sdot" data-svc="backend"></span><span class="sname">backend</span><span class="sns">platform</span><span class="skind">Deploy · HPA</span></div>
+        <div class="svc"><span class="sdot" data-svc="auth"></span><span class="sname">auth-service</span><span class="sns">platform</span><span class="skind">Deploy</span></div>
+        <div class="svc"><span class="sdot" data-svc="notification"></span><span class="sname">notification-service</span><span class="sns">platform</span><span class="skind">Deploy</span></div>
+        <div class="svc"><span class="sdot" data-svc="postgres"></span><span class="sname">postgres</span><span class="sns">platform</span><span class="skind">StatefulSet</span></div>
+        <div class="svc"><span class="sdot" data-svc="redis"></span><span class="sname">redis</span><span class="sns">platform</span><span class="skind">Deploy</span></div>
+        <div class="svc"><span class="sdot" data-svc="rabbitmq"></span><span class="sname">rabbitmq</span><span class="sns">platform</span><span class="skind">Deploy</span></div>
+      </div>
+      <div class="legend">Health reflects the platform's readiness probes. The backend's <code>/readyz</code> reports its Redis and RabbitMQ connections; a red dot means that dependency check is failing — the same signal Kubernetes uses to route traffic.</div>
+    </div>
+  </div>
+  <div class="foot">
+    <div class="fs"><div class="fn">7</div><div class="fl">microservices</div></div>
+    <div class="fs"><div class="fn">2</div><div class="fl">worker nodes</div></div>
+    <div class="fs"><div class="fn">300s</div><div class="fl">Redis cache TTL</div></div>
+    <div class="fs"><div class="fn">100%</div><div class="fl">declarative · GitOps</div></div>
+  </div>
+</div>
+<script>
+  const $ = s => document.querySelector(s);
+  const hops = [...document.querySelectorAll('.hop')];
+  const readout = $('#readout'), traceState = $('#traceState'), latency = $('#latency');
+  const sendBtn = $('#sendBtn'), againBtn = $('#againBtn'), healthBtn = $('#healthBtn');
+  const wait = ms => new Promise(r=>setTimeout(r,ms));
+  let reqCount=0, freshCount=0, cacheCount=0, lastUser='demo-user';
+  function resetHops(){ hops.forEach(h=>h.classList.remove('done','active')); }
+  async function animateTrace(cacheHit){
+    resetHops();
+    const path = cacheHit ? [0,1,3] : [0,1,2,3,4];
+    for(const i of path){ hops[i].classList.add('active'); await wait(240); hops[i].classList.remove('active'); hops[i].classList.add('done'); }
+  }
+  async function sendRequest(username){
+    sendBtn.disabled = againBtn.disabled = true;
+    traceState.textContent = 'running…';
+    readout.innerHTML = '<span class="muted">// sending…</span>';
+    latency.textContent = '';
+    const t0 = performance.now();
+    let cacheHit=false, data=null, ok=false;
+    try{ const res = await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username})}); data = await res.json(); ok = res.ok; cacheHit = !!data.cached; }catch(e){ ok=false; }
+    await animateTrace(cacheHit);
+    const ms = Math.round(performance.now()-t0);
+    traceState.textContent = ok ? 'complete' : 'error';
+    latency.textContent = ok ? ms+' ms' : '';
+    if(ok && data.token){
+      reqCount++; cacheHit ? cacheCount++ : freshCount++;
+      $('#reqCount').textContent=reqCount; $('#freshCount').textContent=freshCount; $('#cacheCount').textContent=cacheCount;
+      const cls = cacheHit ? 'v-cached' : 'v-fresh';
+      readout.innerHTML = '<span class="k">token:</span>  '+(data.token||'').slice(0,44)+'…<br><span class="k">cached:</span> <span class="'+cls+'">'+cacheHit+'</span>'+(cacheHit?'   <span class="muted">// served from Redis — auth &amp; publish skipped</span>':'   <span class="muted">// fresh — token minted, event published</span>');
+    }else{
+      readout.innerHTML = '<span class="muted">// backend unreachable. Start the cluster, then:</span><br>kubectl port-forward -n platform svc/frontend 8080:3000';
     }
-  </script>
+    sendBtn.disabled = againBtn.disabled = false;
+    return cacheHit;
+  }
+  sendBtn.addEventListener('click',()=>{ lastUser = $('#username').value.trim()||'demo-user'; sendRequest(lastUser); });
+  againBtn.addEventListener('click',()=>{ sendRequest(lastUser); });
+  $('#username').addEventListener('keydown',e=>{ if(e.key==='Enter'){ lastUser=e.target.value.trim()||'demo-user'; sendRequest(lastUser);} });
+  const probes = { frontend:'/healthz', backend:'/api/healthz', auth:'/api/auth/healthz' };
+  async function checkHealth(){
+    document.querySelectorAll('.sdot').forEach(d=>d.className='sdot checking');
+    for(const [svc,url] of Object.entries(probes)){
+      const dot = document.querySelector('.sdot[data-svc="'+svc+'"]');
+      try{ const r = await fetch(url,{method:'GET'}); dot.className='sdot '+(r.ok?'up':'down'); }catch{ dot.className='sdot down'; }
+    }
+    let redisUp=false, rabbitUp=false, authUp=false;
+    try{ const r=await fetch('/api/readyz'); const j=await r.json().catch(()=>({})); redisUp=j.checks?.redis ?? r.ok; rabbitUp=j.checks?.rabbitmq ?? r.ok; }catch{}
+    try{ const ra=await fetch('/api/auth/readyz'); authUp=ra.ok; }catch{}
+    const set=(s,v)=>{const d=document.querySelector('.sdot[data-svc="'+s+'"]'); if(d) d.className='sdot '+(v?'up':'down');};
+    set('redis',redisUp); set('rabbitmq',rabbitUp); set('notification',rabbitUp); set('postgres',authUp);
+    const anyUp = document.querySelector('.sdot.up');
+    if(anyUp){ $('#clusterDot').className='dot up'; $('#clusterLabel').textContent='cluster healthy'; }
+    else{ $('#clusterDot').className='dot down'; $('#clusterLabel').textContent='cluster unreachable'; }
+  }
+  healthBtn.addEventListener('click',checkHealth);
+  checkHealth();
+</script>
 </body>
 </html>
