@@ -20,7 +20,15 @@ deployment pipeline.
 
 ## Stack
 
-Docker · Kind · Kubernetes · Calico · Helm · Prometheus/Grafana/Loki · ArgoCD
+| Layer | Technology |
+|---|---|
+| Orchestration | Kubernetes (Kind), Calico CNI |
+| Packaging | Helm |
+| GitOps | ArgoCD |
+| Services | Node.js / Express (7 microservices) |
+| Data | PostgreSQL (StatefulSet), Redis, RabbitMQ |
+| Observability | Prometheus, Grafana, Loki, Fluent Bit |
+| Security | NetworkPolicies (zero-trust), RBAC, non-root containers |
 
 ## Status
 
