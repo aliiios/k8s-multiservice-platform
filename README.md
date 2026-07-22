@@ -9,14 +9,6 @@ deployment pipeline.
 > depth in Kubernetes and Cloud Native engineering, not application features.
 
 ## Architecture
-
-<img width="1100" height="980" alt="How a request flows through the platform" src="https://github.com/user-attachments/assets/890783b9-8742-4bea-be19-b6b8831d2e46" />
-
-<img width="1104" height="1062" alt="GitOps delivery   platform operations" src="https://github.com/user-attachments/assets/c4fd177f-45b7-43ed-a152-6b05ed1216f0" />
-
-<img width="1441" height="1296" alt="Kubernetes Cluster — Internal Architecture" src="https://github.com/user-attachments/assets/2cca7b26-5f8b-47dd-a97d-7c2cab3316a6" />
-
-
 - **Frontend** — thin UI client
 - **Backend** — core API service
 - **Auth Service** — authentication/token issuance
@@ -24,6 +16,19 @@ deployment pipeline.
 - **PostgreSQL** — primary relational data store
 - **Redis** — caching / session store
 - **RabbitMQ** — async messaging between services
+
+
+How a request flows through the platform
+<img width="1100" height="980" alt="How a request flows through the platform" src="https://github.com/user-attachments/assets/890783b9-8742-4bea-be19-b6b8831d2e46" />
+
+
+GitOps delivery & platform operations
+<img width="1104" height="1062" alt="GitOps delivery   platform operations" src="https://github.com/user-attachments/assets/c4fd177f-45b7-43ed-a152-6b05ed1216f0" />
+
+
+Kubernetes Cluster — Internal Architecture
+<img width="1441" height="1296" alt="Kubernetes Cluster — Internal Architecture" src="https://github.com/user-attachments/assets/2cca7b26-5f8b-47dd-a97d-7c2cab3316a6" />
+
 
 ## Stack
 
